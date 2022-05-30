@@ -1,0 +1,26 @@
+.chat-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__input {
+    display: flex;
+    padding: .5%;
+
+    .ant-input-textarea {
+      flex-grow: 1;
+      margin-right: 1%;
+    }
+    .ant-btn {
+      align-self: center;
+      min-width: 100px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+}
