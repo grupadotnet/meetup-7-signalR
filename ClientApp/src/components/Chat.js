@@ -1,26 +1,62 @@
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Input, Button} from 'antd';
 import {SendOutlined, LogoutOutlined} from '@ant-design/icons';
 import {ChatWindow} from './ChatWindow';
+import {HubConnectionBuilder} from '@microsoft/signalr';
 
 import "./Chat.scss"
 
 const {TextArea} = Input;
 
 
-export const Chat = (props) => {
+export const Chat = () => {
+    const [connection, setConnection] = useState(null);
     const [isAuth, setAuth] = useState(false);
     const [nick, setNick] = useState("")
     const [message, setMessage] = useState("")
-    const [messages, setMessages] = useState([{
-        nick: "Nick",
-        message: "Test",
-        date: Date.now()
-    }])
+    const [messages, setMessages] = useState([])
 
-    const onSend = () => {
-        setMessages(prevState => ([...prevState, {nick, message, date: Date.now()}]))
-        setMessage("")
+    useEffect(() => {
+        const newConnection = new HubConnectionBuilder()
+            .withUrl('https://localhost:7057/hubs/chat')
+            .withAutomaticReconnect()
+            .build();
+        setConnection(newConnection);
+    }, []);
+
+    useEffect(() => {
+        if (connection) {
+            connection.start()
+                .then(() => {
+                    console.log('Connected!');
+
+                    connection.on('ReceiveMessage', ({user, message, date}) => {
+                        console.log(user)
+                        setMessages(prevState => ([...prevState, {nick: user, message, date: new Date(date)}]))
+                        setMessage("")
+                    });
+                })
+                .catch(e => console.log('Connection failed: ', e));
+        }
+    }, [connection]);
+
+    const onSend = async () => {
+        const chatMessage = {
+            user: nick,
+            message: message
+        };
+
+        console.log(connection._connectionState)
+        if (connection._connectionState == "Connected") {
+            try {
+                setMessage("")
+                await connection.send('SendMessage', chatMessage);
+            } catch (e) {
+                console.log(e);
+            }
+        } else {
+            alert('No connection to server yet.');
+        }
     }
 
     return (
