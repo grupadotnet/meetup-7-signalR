@@ -1,8 +1,8 @@
 import {Comment, Avatar} from 'antd';
 
-const ExampleComment = ({author, message, date, children}) => (
+const ExampleComment = ({nick, message, date, children}) => (
     <Comment
-        author={<a>{author} {new Date(date).toLocaleDateString()} {new Date(date).toLocaleTimeString()}</a>}
+        author={<a>{nick} {new Date(date).toLocaleDateString()} {new Date(date).toLocaleTimeString()}</a>}
         avatar={<Avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo"/>}
         content={
             <p>
